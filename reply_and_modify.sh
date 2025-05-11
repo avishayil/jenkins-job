@@ -1,11 +1,17 @@
 #!/bin/bash
 
+# Check for required arguments
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <admin-user> <admin-password> <job-name>"
+    exit 1
+fi
+
 # Configuration
+ADMIN_USER="$1"
+ADMIN_PASSWORD="$2"
+JOB_NAME="$3"
 JENKINS_URL="http://localhost:8080"
 JENKINS_CLI_JAR="/tmp/jenkins-cli.jar"
-JOB_NAME="$1"
-ADMIN_USER="admin"
-ADMIN_PASSWORD="adminpassword"
 CUSTOM_STEP="sh 'echo Custom Step Executed'"
 
 # Download Jenkins CLI if not already downloaded
@@ -26,6 +32,7 @@ echo "[INFO] Latest build for $JOB_NAME: #$LATEST_BUILD"
 
 # Get the Pipeline script from the latest build
 BUILD_SCRIPT=$(curl -s -u "$ADMIN_USER:$ADMIN_PASSWORD" "$JENKINS_URL/job/$JOB_NAME/$LATEST_BUILD/replay/pipelineSyntax")
+
 if [ -z "$BUILD_SCRIPT" ]; then
     echo "[ERROR] Failed to retrieve pipeline script for build #$LATEST_BUILD."
     exit 1
