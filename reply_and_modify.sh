@@ -17,7 +17,7 @@ CUSTOM_STEP="sh 'echo Custom Step Executed'"
 # Download Jenkins CLI if not already downloaded
 if [ ! -f "$JENKINS_CLI_JAR" ]; then
     echo "[INFO] Downloading Jenkins CLI..."
-    wget -q "$JENKINS_URL/jnlpJars/jenkins-cli.jar" -O "$JENKINS_CLI_JAR"
+    curl -o "$JENKINS_CLI_JAR" "$JENKINS_URL/jnlpJars/jenkins-cli.jar"
 fi
 
 # Get the latest build number
