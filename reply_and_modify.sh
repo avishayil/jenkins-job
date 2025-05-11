@@ -17,11 +17,19 @@ CUSTOM_STEP="sh 'echo Custom Step Executed'"
 # Download Jenkins CLI if not already downloaded
 if [ ! -f "$JENKINS_CLI_JAR" ]; then
     echo "[INFO] Downloading Jenkins CLI..."
-    curl -o "$JENKINS_CLI_JAR" "$JENKINS_URL/jnlpJars/jenkins-cli.jar"
+    wget -q "$JENKINS_URL/jnlpJars/jenkins-cli.jar" -O "$JENKINS_CLI_JAR"
 fi
 
-# Get the latest build number
-LATEST_BUILD=$(java -jar "$JENKINS_CLI_JAR" -s "$JENKINS_URL" -auth "$ADMIN_USER:$ADMIN_PASSWORD" list-builds "$JOB_NAME" | head -n 1 | awk '{print $1}')
+# Get the latest build number using the REST API
+BUILD_INFO=$(curl -s -u "$ADMIN_USER:$ADMIN_PASSWORD" "$JENKINS_URL/job/$JOB_NAME/api/json?tree=lastBuild[number]")
+
+if [ -z "$BUILD_INFO" ]; then
+    echo "[ERROR] Failed to retrieve build information for job $JOB_NAME."
+    exit 1
+fi
+
+# Extract the latest build number using grep and sed
+LATEST_BUILD=$(echo "$BUILD_INFO" | grep -o '"number":[0-9]*' | cut -d: -f2)
 
 if [ -z "$LATEST_BUILD" ]; then
     echo "[ERROR] No builds found for job $JOB_NAME."
