@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'eks-agent'
+        label 'python'
     }
     stages {
         stage('Build') {
